@@ -1,0 +1,46 @@
+.app {
+  width: 100vw;
+  height: 90vh;
+  display: flex;
+  justify-content: center;
+}
+
+.app-container {
+  width: 75%;
+  margin: 5%;
+}
+
+@media only screen and (max-width: 768px) {
+  .app-container {
+    font-size: 0.9em;
+    height: 70%;
+  }
+}
+
+@media only screen and (min-width: 992px) {
+  .app-container {
+    width: 60%;
+  }
+}
+
+.typing-area {
+  opacity: 0;
+  position: absolute;
+}
+
+.row {
+  display: flex;
+  margin: 0px 20px 0px 20px;
+}
+
+.column {
+  flex: 50%;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mt-10-negative {
+  margin-top: -10px;
+}
