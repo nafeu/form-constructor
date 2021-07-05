@@ -8,10 +8,10 @@ export const formMolecules = {
       label: 'Text',
       atoms: [
         {
-          id: `promptAtom|${key}`,
-          label: 'Prompt',
+          id: `labelAtom|${key}`,
+          label: 'Label',
           type: 'text',
-          placeholder: 'Enter Prompt',
+          placeholder: 'Enter Label',
           value: ''
         },
         {
@@ -38,7 +38,7 @@ export const formMolecules = {
       };
 
       each(molecule.atoms, ({ id, value }) => {
-        if (id.includes('promptAtom')) {
+        if (id.includes('labelAtom')) {
           output.label = value;
         }
 
@@ -60,10 +60,10 @@ export const formMolecules = {
       label: 'Number',
       atoms: [
         {
-          id: `promptAtom|${key}`,
-          label: 'Prompt',
+          id: `labelAtom|${key}`,
+          label: 'Label',
           type: 'text',
-          placeholder: 'Enter Prompt',
+          placeholder: 'Enter Label',
           value: ''
         },
         {
@@ -90,7 +90,7 @@ export const formMolecules = {
       };
 
       each(molecule.atoms, ({ id, value }) => {
-        if (id.includes('promptAtom')) {
+        if (id.includes('labelAtom')) {
           output.label = value;
         }
 
@@ -112,10 +112,10 @@ export const formMolecules = {
       label: 'Range',
       atoms: [
         {
-          id: `promptAtom|${key}`,
-          label: 'Prompt',
+          id: `labelAtom|${key}`,
+          label: 'Label',
           type: 'text',
-          placeholder: 'Enter Prompt',
+          placeholder: 'Enter Label',
           value: ''
         },
         {
@@ -142,7 +142,7 @@ export const formMolecules = {
       };
 
       each(molecule.atoms, ({ id, value }) => {
-        if (id.includes('promptAtom')) {
+        if (id.includes('labelAtom')) {
           output.label = value;
         }
 
@@ -164,10 +164,10 @@ export const formMolecules = {
       label: 'Date',
       atoms: [
         {
-          id: `promptAtom|${key}`,
-          label: 'Prompt',
+          id: `labelAtom|${key}`,
+          label: 'Label',
           type: 'text',
-          placeholder: 'Enter Prompt',
+          placeholder: 'Enter Label',
           value: ''
         }
       ]
@@ -180,7 +180,7 @@ export const formMolecules = {
       };
 
       each(molecule.atoms, ({ id, value }) => {
-        if (id.includes('promptAtom')) {
+        if (id.includes('labelAtom')) {
           output.label = value;
         }
       });
@@ -194,10 +194,10 @@ export const formMolecules = {
       label: 'Yes-No',
       atoms: [
         {
-          id: `promptAtom|${key}`,
-          label: 'Prompt',
+          id: `labelAtom|${key}`,
+          label: 'Label',
           type: 'text',
-          placeholder: 'Enter Prompt',
+          placeholder: 'Enter Label',
           value: ''
         }
       ]
@@ -210,7 +210,7 @@ export const formMolecules = {
       };
 
       each(molecule.atoms, ({ id, value }) => {
-        if (id.includes('promptAtom')) {
+        if (id.includes('labelAtom')) {
           output.label = value;
         }
       });

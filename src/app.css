@@ -6,20 +6,20 @@
 }
 
 .app-container {
-  width: 75%;
+  width: 90%;
   margin: 5%;
 }
 
 @media only screen and (max-width: 768px) {
   .app-container {
     font-size: 0.9em;
-    height: 70%;
+    height: 80%;
   }
 }
 
 @media only screen and (min-width: 992px) {
   .app-container {
-    width: 60%;
+    width: 75%;
   }
 }
 

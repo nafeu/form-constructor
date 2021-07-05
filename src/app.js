@@ -11,7 +11,11 @@ import {
   Label,
   Input,
   ListGroup,
-  ListGroupItem
+  ListGroupItem,
+  Card,
+  CardBody,
+  CardTitle,
+  CardSubtitle
 } from 'reactstrap';
 
 import { v1 as uniqueId } from 'uuid';
@@ -157,7 +161,7 @@ function App() {
       <div className="app-container">
         <Title />
 
-        <Container className="mb-4">
+        <Container className="mb-4" fluid>
           <h4>Construct Form</h4>
           <Row>
             <Col xs={isShowingCodePreview ? '6' : '12'}>
@@ -213,54 +217,59 @@ function App() {
                   </Button>
                 </FormGroup>
               </Form>
-              <hr/>
+
               <Form>
                 {organism.molecules.length > 0 && organism.molecules.map(molecule => {
                   return (
                     <Fragment key={molecule.id}>
-                      <Row form>
-                        {molecule.atoms.map(atom => {
-                          return (
-                            <Col key={atom.id}>
+                      <Card className="mb-4">
+                        <CardBody>
+                          <CardTitle tag="h5">{molecule.label}</CardTitle>
+                          <Row form>
+                            {molecule.atoms.map(atom => {
+                              return (
+                                <Col xs={molecule.atoms.length >= 3 ? '4' : ''} key={atom.id}>
+                                  <FormGroup>
+                                    <Label for={atom.id}>{atom.label}</Label>
+                                    <Input
+                                      type={atom.type}
+                                      id={atom.id}
+                                      placeholder={atom.placeholder}
+                                      onChange={event => handleChangeAtom({
+                                        atomId: atom.id,
+                                        moleculeId: molecule.id,
+                                        event
+                                      })}
+                                      value={atom.value}
+                                    />
+                                  </FormGroup>
+                                </Col>
+                              );
+                            })}
+                          </Row>
+                          <Row form>
+                            <Col>
                               <FormGroup>
-                                <Label for={atom.id}>{atom.label}</Label>
-                                <Input
-                                  type={atom.type}
-                                  id={atom.id}
-                                  placeholder={atom.placeholder}
-                                  onChange={event => handleChangeAtom({
-                                    atomId: atom.id,
-                                    moleculeId: molecule.id,
-                                    event
-                                  })}
-                                  value={atom.value}
-                                />
+                                <Button
+                                  color="danger"
+                                  size="sm"
+                                  className="mr-2"
+                                  onClick={() => handleClickDelete({ moleculeId: molecule.id })}
+                                >
+                                  Delete
+                                </Button>
+                                <Button
+                                  color="primary"
+                                  size="sm"
+                                  onClick={() => handleClickDuplicate({ moleculeToDuplicate: molecule })}
+                                >
+                                  Duplicate
+                                </Button>
                               </FormGroup>
                             </Col>
-                          );
-                        })}
-                      </Row>
-                      <Row form>
-                        <Col>
-                          <FormGroup>
-                            <Button
-                              color="danger"
-                              size="sm"
-                              className="mr-2"
-                              onClick={() => handleClickDelete({ moleculeId: molecule.id })}
-                            >
-                              Delete
-                            </Button>
-                            <Button
-                              color="primary"
-                              size="sm"
-                              onClick={() => handleClickDuplicate({ moleculeToDuplicate: molecule })}
-                            >
-                              Duplicate
-                            </Button>
-                          </FormGroup>
-                        </Col>
-                      </Row>
+                          </Row>
+                        </CardBody>
+                      </Card>
                     </Fragment>
                   );
                 })}
@@ -279,21 +288,26 @@ function App() {
 
           {organism.molecules.length > 0 && (
             <Fragment>
-              <h4>Confirm Fields</h4>
+              <h4>Preview Form</h4>
               <Row>
                 <Col xs={isShowingCodePreview ? '6' : '12'}>
-                  {formFields.length > 0 && formFields.map(formField => {
-                    return (
-                      <Row key={formField.id} form>
-                        <Col>
-                          <Molecule
-                            formField={formField}
-                            onChangeFormField={handleChangeFormField}
-                          />
-                        </Col>
-                      </Row>
-                    );
-                  })}
+                  <Card>
+                    <CardBody>
+                      <CardTitle>{organism.name || '[Untitled Form]'}</CardTitle>
+                      {formFields.length > 0 && formFields.map(formField => {
+                        return (
+                          <Row key={formField.id} form>
+                            <Col>
+                              <Molecule
+                                formField={formField}
+                                onChangeFormField={handleChangeFormField}
+                              />
+                            </Col>
+                          </Row>
+                        );
+                      })}
+                    </CardBody>
+                  </Card>
                 </Col>
                 {isShowingCodePreview && (
                   <Col xs="6">
