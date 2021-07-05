@@ -1,14 +1,12 @@
-# Typing Test
+# Form Constructor
 
-An experimental typing test with React and a Neumorphism UI design style.
-
-![Typing Test By Nafeu](http://nafeu.com/typing-test/app-preview.png)
+Build HTML forms with customizable schemas
 
 ## Installation
 
 ```
-git clone https://github.com/nafeu/typing-test.git
-cd typing-test
+git clone https://github.com/nafeu/form-constructor.git
+cd form-constructor
 npm install
 ```
 

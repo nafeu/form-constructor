@@ -1,212 +1,339 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { Fragment, useState, useRef, useEffect } from "react";
 import "./app.css";
+
 import {
-  TWO_MINUTES,
-  ONE_SECOND,
-  KEYCODE_BACKSPACE,
-  PROGRESS_RING_RADIUS,
-  PROGRESS_RING_STROKE,
-  KEYCODE_ENTER,
-} from "./utils/constants";
-import {
-  getStats,
-  getHighlightClass,
-  getCharByCode,
-  getProgress,
-  getInitialGameState,
-  isUnusedKeyPress,
-  getElapsedTime,
-} from "./utils/helpers";
+  Container,
+  Row,
+  Col,
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  ListGroup,
+  ListGroupItem
+} from 'reactstrap';
+
+import { v1 as uniqueId } from 'uuid';
+import { keys } from 'lodash';
 
 import Title from "./components/title";
 import Footer from "./components/footer";
-import Stats from "./components/stats";
-import Prompt from "./components/prompt";
-import ProgressRing from "./components/progress-ring";
-
-let typingInterval;
-let timeAtStart;
+import Molecule from "./components/molecule";
+import { parseId, getKeyLabel } from './utils/helpers';
+import { FIRST_ITEM } from './utils/constants';
+import {
+  formMolecules,
+  availableMolecules,
+  processOrganism,
+  buildPayload
+} from './services/form-builder';
 
 function App() {
-  const typingArea = useRef(null);
-  const [gameState, setGameState] = useState(getInitialGameState());
-  const [timeElapsedInMs, setTimeElapsedInMs] = useState(0);
-  const [hasStartedTyping, setHasStartedTyping] = useState(false);
-  const [isFinished, setIsFinished] = useState(false);
-
-  useEffect(() => {
-    if (hasStartedTyping && !isFinished) {
-      timeAtStart = new Date();
-
-      typingInterval = setInterval(() => {
-        const newTimeElapsedInMs = getElapsedTime(timeAtStart);
-
-        if (newTimeElapsedInMs >= TWO_MINUTES) {
-          clearInterval(typingInterval);
-          setIsFinished(true);
-        } else {
-          setTimeElapsedInMs(newTimeElapsedInMs);
-        }
-      }, ONE_SECOND);
-    }
-
-    return () => {
-      clearInterval(typingInterval);
-    };
-  }, [isFinished, hasStartedTyping]);
-
-  const {
-    typingPrompt,
-    correctEntries,
-    incorrectEntries,
-    isCorrectSequence,
-    keyStrokeCount,
-    author,
-  } = gameState;
-
-  const { wpm, accuracy } = getStats({
-    timeElapsedInMs,
-    correctEntries,
-    incorrectEntries,
-    keyStrokeCount,
+  const [isShowingCodePreview, setIsDevMode] = useState(true);
+  const [organism, setOrganism] = useState({
+    id: `organism-${uniqueId()}`,
+    name: '',
+    molecules: [],
   });
 
-  const progress = getProgress({ timeElapsedInMs, isFinished });
+  const [selectedMolecule, setSelectedMolecule] = useState(
+    formMolecules[availableMolecules[FIRST_ITEM]].build()
+  );
 
-  const highlightClass = getHighlightClass({ isCorrectSequence, isFinished });
+  const [formFields, setFormFields] = useState(processOrganism(organism));
+  const [payload, setPayload] = useState(buildPayload({ organism, formFields }));
 
-  const handleOnKeyPress = ({ charCode }) => {
-    setTimeElapsedInMs(getElapsedTime(timeAtStart));
+  useEffect(() => {
+    setFormFields(processOrganism(organism));
+  }, [organism])
 
-    if (isUnusedKeyPress({ charCode, isFinished })) {
-      return;
+  useEffect(() => {
+    const updatedPayload = buildPayload({ organism, formFields });
+
+    setPayload(updatedPayload);
+  }, [organism, formFields]);
+
+  const handleClickToggleDevMode = () => {
+    setIsDevMode(!isShowingCodePreview);
+  }
+
+  const handleChangeText = event => {
+    setOrganism({
+      ...organism,
+      name: event.target.value
+    });
+  }
+
+  const handleSelectMolecule = event => {
+    const moleculeId = event.target.value;
+
+    setSelectedMolecule(formMolecules[moleculeId].build());
+  }
+
+  const handleClickAddMolecule = () => {
+    const moleculeId = parseId(selectedMolecule.id);
+
+    setOrganism({
+      ...organism,
+      molecules: [
+        ...organism.molecules,
+        formMolecules[moleculeId].build(uniqueId())
+      ]
+    })
+  }
+
+  const handleChangeAtom = ({ atomId, moleculeId, event }) => {
+    const updatedOrganism = {
+      ...organism,
+      molecules: organism.molecules.map(molecule => {
+        if (molecule.id === moleculeId) {
+          return {
+            ...molecule,
+            atoms: molecule.atoms.map(atom => {
+              if (atom.id === atomId) {
+                return {
+                  ...atom,
+                  value: event.target.value
+                }
+              }
+
+              return atom;
+            })
+          }
+        }
+
+        return molecule;
+      })
     }
 
-    if (isFinished) {
-      if (charCode === KEYCODE_ENTER) {
-        setGameState(getInitialGameState());
-        setIsFinished(false);
-        setTimeElapsedInMs(0);
-        setHasStartedTyping(false);
+    setOrganism(updatedOrganism);
+  }
+
+  const handleClickDelete = ({ moleculeId }) => {
+    const updatedOrganism = {
+      ...organism,
+      molecules: organism.molecules.filter(molecule => {
+        return molecule.id !== moleculeId;
+      })
+    }
+
+    setOrganism(updatedOrganism);
+  }
+
+  const handleClickDuplicate = ({ moleculeToDuplicate }) => {
+    const key = uniqueId();
+
+    const updatedOrganism = {
+      ...organism,
+      molecules: [...organism.molecules, {
+        ...moleculeToDuplicate,
+        id: `${parseId(moleculeToDuplicate.id)}|${key}`,
+        atoms: moleculeToDuplicate.atoms.map(atom => ({
+          ...atom,
+          id: `${parseId(atom.id)}|${key}`
+        }))
+      }]
+    }
+
+    setOrganism(updatedOrganism);
+  }
+
+  const handleChangeFormField = ({ formFieldId, value }) => {
+    setFormFields(formFields.map(formField => {
+      if (formField.id === formFieldId) {
+        return {
+          ...formField,
+          value
+        }
       }
-      return;
-    }
 
-    if (!hasStartedTyping) {
-      if (charCode === typingPrompt.charCodeAt(0)) {
-        setHasStartedTyping(true);
-      }
-    }
-
-    if (charCode === typingPrompt.charCodeAt(0) && isCorrectSequence) {
-      setGameState({
-        ...gameState,
-        correctEntries: [...correctEntries, typingPrompt[0]],
-        typingPrompt: typingPrompt.substring(1),
-        isCorrectSequence: true,
-        keyStrokeCount: keyStrokeCount + 1,
-      });
-
-      if (typingPrompt.substring(1).length < 1) {
-        clearInterval(typingInterval);
-        setIsFinished(true);
-      }
-    } else {
-      setGameState({
-        ...gameState,
-        incorrectEntries: [...incorrectEntries, getCharByCode(charCode)],
-        isCorrectSequence: false,
-        keyStrokeCount: keyStrokeCount + 1,
-      });
-    }
-  };
-
-  const handleOnKeyDown = ({ keyCode }) => {
-    if (isFinished) {
-      return;
-    }
-
-    const handleHasIncorrectEntries = () => {
-      setGameState({
-        ...gameState,
-        incorrectEntries:
-          incorrectEntries.length > 0
-            ? incorrectEntries.slice(0, -1)
-            : incorrectEntries,
-        isCorrectSequence: incorrectEntries.length <= 1,
-      });
-    };
-
-    const handleCorrectEntries = () => {
-      const updatedCorrectEntries = correctEntries.slice(0, -1);
-      const updatedTypingPrompt = [
-        correctEntries[correctEntries.length - 1],
-        ...typingPrompt,
-      ].join("");
-
-      setGameState({
-        ...gameState,
-        correctEntries: updatedCorrectEntries,
-        typingPrompt: updatedTypingPrompt,
-      });
-    };
-
-    if (keyCode === KEYCODE_BACKSPACE) {
-      const hasIncorrectEntries = incorrectEntries.length > 0;
-      const hasCorrectEntries = correctEntries.length > 0;
-
-      if (hasIncorrectEntries) {
-        handleHasIncorrectEntries();
-      } else if (hasCorrectEntries) {
-        handleCorrectEntries();
-      }
-    }
-  };
-
-  const handleClick = () => {
-    typingArea.current.focus();
-  };
+      return formField;
+    }));
+  }
 
   return (
-    <div onClick={handleClick} className="app">
-      <input
-        ref={typingArea}
-        className="typing-area"
-        onKeyPress={handleOnKeyPress}
-        onKeyDown={handleOnKeyDown}
-        type="text"
-        autoFocus
-      />
+    <div className="app">
       <div className="app-container">
         <Title />
-        <Prompt
-          correctEntries={correctEntries}
-          typingPrompt={typingPrompt}
-          incorrectEntries={incorrectEntries}
-          highlightClass={highlightClass}
-          hasStartedTyping={hasStartedTyping}
-          author={author}
-          isFinished={isFinished}
-        />
-        <div className="row">
-          <div className="column mt-10-negative">
-            <ProgressRing
-              hasStartedTyping={hasStartedTyping}
-              isFinished={isFinished}
-              stroke={PROGRESS_RING_STROKE}
-              radius={PROGRESS_RING_RADIUS}
-              progress={progress}
-            />
-          </div>
-          <div className="column">
-            <Stats
-              hasStartedTyping={hasStartedTyping}
-              isFinished={isFinished}
-              wpm={wpm}
-              accuracy={accuracy}
-            />
-          </div>
-        </div>
+
+        <Container className="mb-4">
+          <h4>Construct Form</h4>
+          <Row>
+            <Col xs={isShowingCodePreview ? '6' : '12'}>
+              <Form>
+                <FormGroup>
+                  <Label for="formName">Form Name</Label>
+                  <Input
+                    type="text"
+                    id="formName"
+                    placeholder="Enter name"
+                    value={organism.name}
+                    onChange={handleChangeText}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label for="selectMolecule">Select Form Field</Label>
+                  <Input
+                    type="select"
+                    id="selectMolecule"
+                    placeholder="Select form field"
+                    value={parseId(selectedMolecule.id)}
+                    onChange={handleSelectMolecule}
+                  >
+                    {availableMolecules.map(id => {
+                      const moleculeId = parseId(id);
+                      const { label } = formMolecules[moleculeId].build();
+
+                      return (
+                        <option
+                          key={id}
+                          value={moleculeId}
+                        >
+                          {label}
+                        </option>
+                      );
+                    })}
+                  </Input>
+                </FormGroup>
+                <FormGroup>
+                  <Button
+                    color="success"
+                    className="mr-2"
+                    onClick={handleClickAddMolecule}
+                  >
+                    Add Form Field
+                  </Button>
+                  <Button
+                    onClick={handleClickToggleDevMode}
+                    color={isShowingCodePreview ? 'info' : 'secondary'}
+                  >
+                    {isShowingCodePreview ? 'Hide Code' : 'Show Code'}
+                  </Button>
+                </FormGroup>
+              </Form>
+              <hr/>
+              <Form>
+                {organism.molecules.length > 0 && organism.molecules.map(molecule => {
+                  return (
+                    <Fragment key={molecule.id}>
+                      <Row form>
+                        {molecule.atoms.map(atom => {
+                          return (
+                            <Col key={atom.id}>
+                              <FormGroup>
+                                <Label for={atom.id}>{atom.label}</Label>
+                                <Input
+                                  type={atom.type}
+                                  id={atom.id}
+                                  placeholder={atom.placeholder}
+                                  onChange={event => handleChangeAtom({
+                                    atomId: atom.id,
+                                    moleculeId: molecule.id,
+                                    event
+                                  })}
+                                  value={atom.value}
+                                />
+                              </FormGroup>
+                            </Col>
+                          );
+                        })}
+                      </Row>
+                      <Row form>
+                        <Col>
+                          <FormGroup>
+                            <Button
+                              color="danger"
+                              size="sm"
+                              className="mr-2"
+                              onClick={() => handleClickDelete({ moleculeId: molecule.id })}
+                            >
+                              Delete
+                            </Button>
+                            <Button
+                              color="primary"
+                              size="sm"
+                              onClick={() => handleClickDuplicate({ moleculeToDuplicate: molecule })}
+                            >
+                              Duplicate
+                            </Button>
+                          </FormGroup>
+                        </Col>
+                      </Row>
+                    </Fragment>
+                  );
+                })}
+              </Form>
+            </Col>
+            {isShowingCodePreview && (
+              <Col xs="6">
+                <pre style={{ fontSize: '0.75em' }}>
+                  {JSON.stringify(organism, null, 2)}
+                </pre>
+              </Col>
+            )}
+          </Row>
+
+          <hr/>
+
+          {organism.molecules.length > 0 && (
+            <Fragment>
+              <h4>Confirm Fields</h4>
+              <Row>
+                <Col xs={isShowingCodePreview ? '6' : '12'}>
+                  {formFields.length > 0 && formFields.map(formField => {
+                    return (
+                      <Row key={formField.id} form>
+                        <Col>
+                          <Molecule
+                            formField={formField}
+                            onChangeFormField={handleChangeFormField}
+                          />
+                        </Col>
+                      </Row>
+                    );
+                  })}
+                </Col>
+                {isShowingCodePreview && (
+                  <Col xs="6">
+                    <pre>
+                      {JSON.stringify(formFields, null, 2)}
+                    </pre>
+                  </Col>
+                )}
+              </Row>
+
+              <hr/>
+            </Fragment>
+          )}
+
+          <h4>Preview Form Data</h4>
+          <Row>
+            <Col xs={isShowingCodePreview ? '6' : '12'}>
+              <ListGroup>
+                {keys(payload).map(key => {
+                  if (key === 'id') {
+                    return '';
+                  }
+
+                  return (
+                    <ListGroupItem key={key}>
+                      {getKeyLabel({ key, formFields })}: <strong>{payload[key]}</strong>
+                    </ListGroupItem>
+                  );
+                })}
+              </ListGroup>
+            </Col>
+            {isShowingCodePreview && (
+              <Col xs="6">
+                <pre>
+                  {JSON.stringify(payload, null, 2)}
+                </pre>
+              </Col>
+            )}
+          </Row>
+        </Container>
+
         <Footer />
       </div>
     </div>
