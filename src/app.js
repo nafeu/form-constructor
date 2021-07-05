@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useRef, useEffect } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import "./app.css";
 
 import {
@@ -199,14 +199,15 @@ function App() {
                 <FormGroup>
                   <Button
                     color="success"
-                    className="mr-2"
+                    className="m-1"
                     onClick={handleClickAddMolecule}
                   >
                     Add Form Field
                   </Button>
                   <Button
-                    onClick={handleClickToggleDevMode}
                     color={isShowingCodePreview ? 'info' : 'secondary'}
+                    className="m-1"
+                    onClick={handleClickToggleDevMode}
                   >
                     {isShowingCodePreview ? 'Hide Code' : 'Show Code'}
                   </Button>
@@ -267,7 +268,7 @@ function App() {
             </Col>
             {isShowingCodePreview && (
               <Col xs="6">
-                <pre style={{ fontSize: '0.75em' }}>
+                <pre>
                   {JSON.stringify(organism, null, 2)}
                 </pre>
               </Col>

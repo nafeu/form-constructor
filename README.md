@@ -2,6 +2,8 @@
 
 Build HTML forms with customizable schemas
 
+![Form Constructor By Nafeu](https://nafeu.com/form-constructor/app-preview.png)
+
 ## Installation
 
 ```

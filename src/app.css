@@ -22,3 +22,7 @@
     width: 60%;
   }
 }
+
+pre {
+  font-size: 0.75em;
+}
