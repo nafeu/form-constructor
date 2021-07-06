@@ -19,12 +19,13 @@ import {
 
 import { v1 as uniqueId } from 'uuid';
 import { keys } from 'lodash';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 import Title from "./components/title";
 import Footer from "./components/footer";
 import Molecule from "./components/molecule";
 import { parseId, getKeyLabel, formatHtml } from './utils/helpers';
-import { FIRST_ITEM } from './utils/constants';
+import { FIRST_ITEM, ONE_SECOND } from './utils/constants';
 import {
   formMolecules,
   availableMolecules,
@@ -48,6 +49,13 @@ function App() {
 
   const [formFields, setFormFields] = useState(processOrganism(organism));
   const [payload, setPayload] = useState(buildPayload({ organism, formFields }));
+
+  const [isCopied, setIsCopied] = useState({
+    'organism': false,
+    'formFields': false,
+    'payload': false,
+    'html': false
+  });
 
   useEffect(() => {
     setFormFields(processOrganism(organism));
@@ -156,6 +164,19 @@ function App() {
       return formField;
     }));
   }
+
+  const handleClickCopyToClipboard = codeKey => {
+    setIsCopied({ ...isCopied, [codeKey]: true });
+
+    setTimeout(() => {
+      setIsCopied({ ...isCopied, [codeKey]: false });
+    }, ONE_SECOND)
+  }
+
+  const organismCode = JSON.stringify(organism, null, 2);
+  const formFieldsCode = JSON.stringify(formFields, null, 2);
+  const payloadCode = JSON.stringify(payload, null, 2);
+  const htmlCode = formatHtml(formElement?.current?.innerHTML || '');
 
   return (
     <div className="app">
@@ -278,8 +299,22 @@ function App() {
             </Col>
             {isShowingCodePreview && (
               <Col xs="6">
+                <CopyToClipboard
+                  text={organismCode}
+                  onCopy={() => handleClickCopyToClipboard('organism')}
+                >
+                  <Button
+                    outline
+                    color="primary"
+                    size="sm"
+                    className="mb-2"
+                  >
+                    {isCopied.organism ? 'Copied.' : 'Copy To Clipboard'}
+                  </Button>
+                </CopyToClipboard>
+                <br/>
                 <pre>
-                  {JSON.stringify(organism, null, 2)}
+                  {organismCode}
                 </pre>
               </Col>
             )}
@@ -314,8 +349,22 @@ function App() {
                 </Col>
                 {isShowingCodePreview && (
                   <Col xs="6">
+                    <CopyToClipboard
+                      text={formFieldsCode}
+                      onCopy={() => handleClickCopyToClipboard('formFields')}
+                    >
+                      <Button
+                        outline
+                        color="primary"
+                        size="sm"
+                        className="mb-2"
+                      >
+                        {isCopied.formFields ? 'Copied.' : 'Copy To Clipboard'}
+                      </Button>
+                    </CopyToClipboard>
+                    <br/>
                     <pre>
-                      {JSON.stringify(formFields, null, 2)}
+                      {formFieldsCode}
                     </pre>
                   </Col>
                 )}
@@ -344,8 +393,22 @@ function App() {
             </Col>
             {isShowingCodePreview && (
               <Col xs="6">
+                <CopyToClipboard
+                  text={payloadCode}
+                  onCopy={() => handleClickCopyToClipboard('payload')}
+                >
+                  <Button
+                    outline
+                    color="primary"
+                    size="sm"
+                    className="mb-2"
+                  >
+                    {isCopied.payload ? 'Copied.' : 'Copy To Clipboard'}
+                  </Button>
+                </CopyToClipboard>
+                <br/>
                 <pre>
-                  {JSON.stringify(payload, null, 2)}
+                  {payloadCode}
                 </pre>
               </Col>
             )}
@@ -357,8 +420,22 @@ function App() {
               <h4>Get HTML</h4>
               <Row>
                 <Col>
+                  <CopyToClipboard
+                    text={htmlCode}
+                    onCopy={() => handleClickCopyToClipboard('html')}
+                  >
+                    <Button
+                      outline
+                      color="primary"
+                      size="sm"
+                      className="mb-2"
+                    >
+                      {isCopied.html ? 'Copied.' : 'Copy To Clipboard'}
+                    </Button>
+                  </CopyToClipboard>
+                  <br/>
                   <pre>
-                    {formElement?.current?.innerHTML && formatHtml(formElement.current.innerHTML)}
+                    {htmlCode}
                   </pre>
                 </Col>
               </Row>

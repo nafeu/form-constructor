@@ -25,4 +25,7 @@
 
 pre {
   font-size: 0.75em;
+  padding: 1em;
+  background-color: #fbfbfa;
+  border-radius: 0.5em;
 }
