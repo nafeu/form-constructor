@@ -285,8 +285,6 @@ export const buildPayload = ({ organism, formFields }) => {
           ? Number(formField.value)
           : formField.value === null ? '' : String(formField.value);
 
-          console.log({ mapping });
-
         return mapping;
       }, {})
     }

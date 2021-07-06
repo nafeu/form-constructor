@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import "./app.css";
 
 import {
@@ -24,7 +24,7 @@ import { keys } from 'lodash';
 import Title from "./components/title";
 import Footer from "./components/footer";
 import Molecule from "./components/molecule";
-import { parseId, getKeyLabel } from './utils/helpers';
+import { parseId, getKeyLabel, formatHtml } from './utils/helpers';
 import { FIRST_ITEM } from './utils/constants';
 import {
   formMolecules,
@@ -34,6 +34,8 @@ import {
 } from './services/form-builder';
 
 function App() {
+  const formElement = useRef(null);
+
   const [isShowingCodePreview, setIsDevMode] = useState(true);
   const [organism, setOrganism] = useState({
     id: `organism-${uniqueId()}`,
@@ -294,18 +296,20 @@ function App() {
                   <Card>
                     <CardBody>
                       <CardTitle><strong>{organism.name || '[Untitled Form]'}</strong></CardTitle>
-                      {formFields.length > 0 && formFields.map(formField => {
-                        return (
-                          <Row key={formField.id} form>
-                            <Col>
-                              <Molecule
-                                formField={formField}
-                                onChangeFormField={handleChangeFormField}
-                              />
-                            </Col>
-                          </Row>
-                        );
-                      })}
+                      <div ref={formElement}>
+                        {formFields.length > 0 && formFields.map(formField => {
+                          return (
+                            <Row key={formField.id} form>
+                              <Col>
+                                <Molecule
+                                  formField={formField}
+                                  onChangeFormField={handleChangeFormField}
+                                />
+                              </Col>
+                            </Row>
+                          );
+                        })}
+                      </div>
                     </CardBody>
                   </Card>
                 </Col>
@@ -347,6 +351,20 @@ function App() {
               </Col>
             )}
           </Row>
+
+          {organism.molecules.length > 0 && (
+            <Fragment>
+              <hr/>
+              <h4>Get HTML</h4>
+              <Row>
+                <Col>
+                  <pre>
+                    {formElement?.current?.innerHTML && formatHtml(formElement.current.innerHTML)}
+                  </pre>
+                </Col>
+              </Row>
+            </Fragment>
+          )}
         </Container>
 
         <Footer />
