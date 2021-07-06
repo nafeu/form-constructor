@@ -54,6 +54,7 @@ const Molecule = ({ formField, onChangeFormField }) => {
           id={formField.id}
           onChange={event => onChangeFormField({ formFieldId: formField.id, value: event.target.value })}
           {...getInputProps(formField)}
+          name={formField.key || formField.id}
         />
       </FormGroup>
     );
@@ -66,6 +67,7 @@ const Molecule = ({ formField, onChangeFormField }) => {
         id={formField.id}
         onChange={event => onChangeFormField({ formFieldId: formField.id, value: event.target.value })}
         {...getInputProps(formField)}
+        name={formField.key || formField.id}
       />
     </FormGroup>
   );

@@ -293,7 +293,7 @@ function App() {
                 <Col xs={isShowingCodePreview ? '6' : '12'}>
                   <Card>
                     <CardBody>
-                      <CardTitle>{organism.name || '[Untitled Form]'}</CardTitle>
+                      <CardTitle><strong>{organism.name || '[Untitled Form]'}</strong></CardTitle>
                       {formFields.length > 0 && formFields.map(formField => {
                         return (
                           <Row key={formField.id} form>

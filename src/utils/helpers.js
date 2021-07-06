@@ -18,7 +18,7 @@ export const formatDate = date => {
 }
 
 export const getKeyLabel = ({ key, formFields }) => {
-  const label = find(formFields, { id: key })?.label;
+  const formField = find(formFields, { id: key });
 
-  return label || `[${parseId(key)}]`;
+  return formField?.label || `[${parseId(key)}]`;
 }

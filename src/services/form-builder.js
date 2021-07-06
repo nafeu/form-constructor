@@ -8,6 +8,13 @@ export const formMolecules = {
       label: 'Text',
       atoms: [
         {
+          id: `keyAtom|${key}`,
+          label: 'Key',
+          type: 'text',
+          placeholder: 'Enter Key',
+          value: ''
+        },
+        {
           id: `labelAtom|${key}`,
           label: 'Label',
           type: 'text',
@@ -38,6 +45,10 @@ export const formMolecules = {
       };
 
       each(molecule.atoms, ({ id, value }) => {
+        if (id.includes('keyAtom')) {
+          output.key = value;
+        }
+
         if (id.includes('labelAtom')) {
           output.label = value;
         }
@@ -59,6 +70,13 @@ export const formMolecules = {
       id: `numberMolecule|${key}`,
       label: 'Number',
       atoms: [
+        {
+          id: `keyAtom|${key}`,
+          label: 'Key',
+          type: 'text',
+          placeholder: 'Enter Key',
+          value: ''
+        },
         {
           id: `labelAtom|${key}`,
           label: 'Label',
@@ -90,6 +108,10 @@ export const formMolecules = {
       };
 
       each(molecule.atoms, ({ id, value }) => {
+        if (id.includes('keyAtom')) {
+          output.key = value;
+        }
+
         if (id.includes('labelAtom')) {
           output.label = value;
         }
@@ -111,6 +133,13 @@ export const formMolecules = {
       id: `rangeMolecule|${key}`,
       label: 'Range',
       atoms: [
+        {
+          id: `keyAtom|${key}`,
+          label: 'Key',
+          type: 'text',
+          placeholder: 'Enter Key',
+          value: ''
+        },
         {
           id: `labelAtom|${key}`,
           label: 'Label',
@@ -142,6 +171,10 @@ export const formMolecules = {
       };
 
       each(molecule.atoms, ({ id, value }) => {
+        if (id.includes('keyAtom')) {
+          output.key = value;
+        }
+
         if (id.includes('labelAtom')) {
           output.label = value;
         }
@@ -180,6 +213,10 @@ export const formMolecules = {
       };
 
       each(molecule.atoms, ({ id, value }) => {
+        if (id.includes('keyAtom')) {
+          output.key = value;
+        }
+
         if (id.includes('labelAtom')) {
           output.label = value;
         }
@@ -210,6 +247,10 @@ export const formMolecules = {
       };
 
       each(molecule.atoms, ({ id, value }) => {
+        if (id.includes('keyAtom')) {
+          output.key = value;
+        }
+
         if (id.includes('labelAtom')) {
           output.label = value;
         }
@@ -240,9 +281,11 @@ export const buildPayload = ({ organism, formFields }) => {
     return {
       id: organism.id,
       ...formFields.reduce((mapping, formField) => {
-        mapping[formField.id] = formField.type === 'number'
+        mapping[formField.key || formField.id] = formField.type === 'number'
           ? Number(formField.value)
           : formField.value === null ? '' : String(formField.value);
+
+          console.log({ mapping });
 
         return mapping;
       }, {})
