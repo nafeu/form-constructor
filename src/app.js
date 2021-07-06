@@ -14,8 +14,7 @@ import {
   ListGroupItem,
   Card,
   CardBody,
-  CardTitle,
-  CardSubtitle
+  CardTitle
 } from 'reactstrap';
 
 import { v1 as uniqueId } from 'uuid';
